@@ -1,0 +1,130 @@
+html, body, #root {
+  height: 100%;
+}
+
+.App {
+  height: calc(100% - 40px);
+  padding-left: 20px;
+  padding-top: 20px;
+  font-family: 'Helvetica Neue', Helvetica, sans-serif !important;
+}
+
+.App-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.App-logo {
+  height: 100px;
+}
+
+.App-title {
+  display: inline;
+}
+
+.App-reset {
+  height: 50px;
+  margin-right: 25px;
+}
+
+.App-reset:hover {
+  cursor: pointer;
+}
+
+.App-header {
+  font-size: 24px;
+}
+
+.Drop-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  /*height: 100%;*/
+  margin-top: 15vh;
+}
+
+h2 {
+  margin-top: -100px;
+  margin-bottom: 50px;
+  font-size: 30px;
+}
+
+.Dropzone {
+  font-size: 20px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 7px dotted black;
+  padding: 40px;
+  border-radius: 25px;
+  width: 100px;
+  height: 100px;
+  cursor: pointer;
+  animation: spin 50s linear infinite;
+  transition: all 500ms ease;
+  border-radius: 100%;
+}
+
+
+.Dropzone-active {
+  transform: rotate(0);
+  /*background-color: #222;*/
+  border: 7px solid black;
+  border-radius: 15px;
+  height: 100px;
+  width: 75px;
+  color: white;
+  transition: all 500ms ease;
+  animation: none;
+}
+
+/*.Shaking {
+  animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+
+
+.Dropzone-loaded {
+  perspective: 1px;
+  background-color: #222;
+  border: 5px solid white;
+  border-radius: 10px;
+  transition: all 500ms ease;
+  color: white;
+}*/
+
+
+
+
+@keyframes spin {
+    from {
+      transform: rotate(0);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+}
+
+@keyframes shake {
+  10%, 90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+
+  20%, 80% {
+    transform: translate3d(2px, 0, 0);
+  }
+
+  30%, 50%, 70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+
+  40%, 60% {
+    transform: translate3d(4px, 0, 0);
+  }
+}
