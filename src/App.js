@@ -1,15 +1,12 @@
 import _ from 'lodash'
 import Papa from 'papaparse'
-import * as Parsers from './parsers.js'
+import calculateStatistics from './statistics.js'
 import Dropzone from 'react-dropzone'
 import React, { Component } from 'react'
 import * as RC from 'recharts'
 import logo from './logo.svg'
 import ResetIcon from './ResetIcon.svg'
 import './App.css'
-
-const sum = arr => arr.reduce((a, num) => a + num)
-const avg = arr => sum(arr) / arr.length
 
 class TalkTime extends Component {
 
@@ -36,7 +33,7 @@ class TalkTime extends Component {
         </div>
         <div>
           <strong>average (TA): </strong>
-          <span>{this.props.talkTimes.teacher.avg * 60} seconds</span>
+          <span>{_.round(this.props.talkTimes.teacher.avg * 60)} seconds</span>
         </div>
 
         <div>
@@ -49,7 +46,7 @@ class TalkTime extends Component {
         </div>
         <div style={{marginBottom: 20}}>
           <strong>average (student): </strong>
-          <span>{this.props.talkTimes.student.avg * 60} seconds</span>
+          <span>{_.round(this.props.talkTimes.student.avg * 60)} seconds</span>
         </div>
 
         <RC.BarChart unit="seconds" width={600} height={300} data={data}
@@ -73,7 +70,7 @@ class WaitTimeVis extends Component {
     return (
       <span>
         <strong>avg: </strong>
-        <span>{(avg(this.props.waitTimes) / 1000).toFixed(2)}</span>
+        <span>{ _.mean(this.props.waitTimes) / 1000 }</span>
         <span> seconds</span>
       </span>
     )
@@ -85,13 +82,9 @@ class VisMain extends Component {
 
   constructor(props) {
     super(props)
+
     this.state = {
-      waitTimeOnes: Parsers.getWaitTimeOnes(props.rows),
-      talkTimes: Parsers.getTalkTimes(props.rows),
-      coldCalls: Parsers.getColdCalls(props.rows),
-      handsRaised: Parsers.getHandsRaised(props.rows),
-      nameUsed: Parsers.getNameUseds(props.rows),
-      silenceStats: Parsers.getSilenceStats(props.rows),
+      stats: calculateStatistics(props.rows),
     }
   }
 
@@ -99,34 +92,34 @@ class VisMain extends Component {
     return (
       <div className="VisMain">
         <h3>Total talk time</h3>
-        <TalkTime talkTimes={this.state.talkTimes}/>
+        <TalkTime talkTimes={this.state.stats.talkTimes}/>
         <h3>Wait time 1</h3>
-        <WaitTimeVis waitTimes={this.state.waitTimeOnes}/>
+        <WaitTimeVis waitTimes={this.state.stats.waitTimeOnes}/>
 
         <h3>Cold calls</h3>
         <strong>count: </strong>
-        <span>{this.state.coldCalls}</span>
+        <span>{this.state.stats.coldCallsCount}</span>
 
         <h3>Hands raised</h3>
         <strong>count: </strong>
-        <span>{this.state.handsRaised}</span>
+        <span>{this.state.stats.handsRaisedCount}</span>
 
         <h3>Name used</h3>
         <strong>count: </strong>
-        <span>{this.state.nameUsed}</span>
+        <span>{this.state.stats.nameUsedCount}</span>
 
         <h3>Silences</h3>
         <div>
           <strong>count: </strong>
-          <span>{this.state.silenceStats.count}</span>
+          <span>{this.state.stats.silenceStats.count}</span>
         </div>
         <div>
           <strong>sum: </strong>
-          <span>{this.state.silenceStats.sum} minutes</span>
+          <span>{this.state.stats.silenceStats.sum} minutes</span>
         </div>
         <div>
           <strong>avg: </strong>
-          <span>{this.state.silenceStats.avg} minutes</span>
+          <span>{this.state.stats.silenceStats.avg} minutes</span>
         </div>
       </div>
     )
@@ -166,17 +159,16 @@ class App extends Component {
   }
 
   render() {
-    console.log(this.state)
     return (
       <div className="App">
         <div className="App-header">
-          <img src={logo} className="App-logo"></img>
+          <img src={logo} alt="ClassInsight" className="App-logo"></img>
         </div>
         {
           this.state.rows.length > 0
           ?
           <div>
-            <img className="App-reset" src={ResetIcon} onClick={() => this.setState({rows: []})}/>
+            <img className="App-reset" alt="reset" src={ResetIcon} onClick={() => this.setState({rows: []})}/>
             <div className="App-title">{this.state.fileName}</div>
             <VisMain rows={this.state.rows}/>
           </div>
@@ -193,10 +185,5 @@ class App extends Component {
   }
 
 }
-
-// const waitTimeOnes = getWaitTimeOnes(rows)
-//
-// console.log(waitTimeOnes)
-// console.log(avg(waitTimeOnes))
 
 export default App;
