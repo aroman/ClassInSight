@@ -3,9 +3,9 @@ html, body, #root {
 }
 
 .App {
-  height: calc(100% - 40px);
-  padding-left: 20px;
-  padding-top: 20px;
+  /*height: calc(100% - 60px);*/
+  padding: 20px;
+  /*padding-bottom: 60px;*/
   font-family: 'Helvetica Neue', Helvetica, sans-serif !important;
 }
 

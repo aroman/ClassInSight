@@ -1,13 +1,23 @@
 import _ from 'lodash'
 import moment from 'moment'
 
+const sum = arr => arr.reduce((a, num) => a + num)
+const avg = arr => sum(arr) / arr.length
+const round2 = num => +num.toFixed(2)
+const millisToRoundedMinutes = num => round2(num / (60 * 1000))
+
 const EventTypes = {
   STUDENT_PRESENT: 'Students present',
   TEACHER_TALK_START: 'teacher begin talking',
   TEACHER_TALK_END: 'teacher end talking',
   STUDENT_TALK_START: 'student begin talking',
   STUDENT_TALK_END: 'student end talking',
-  QUESTION: 'Question asked',
+  CONTENT_QUESTION: 'Not bad TA Question',
+  NON_CONTENT_QUESTION: 'Meaningless TA Question',
+  COLD_CALL: 'Ice cold call',
+  UNIQUE_STUDENT_TALK: 'First time student talks',
+  HAND_RAISED: 'Hand raised',
+  NAME_USED: 'Use of student name',
 }
 
 function rowMatchesType(eventType) {
@@ -83,9 +93,8 @@ function getWaitTimeOnes(rows, requireQuestionEvent = false) {
   return waitTimes
 }
 
-
 function getTalkTimes(rows) {
-  let getTalkTimes = []
+  let allTalkTimes = []
 
   rows.forEach((row, i) => {
     if (! doesEventTypeBreakSilence(row.type)) {
@@ -98,15 +107,92 @@ function getTalkTimes(rows) {
     )
     const startEvent = row
     const endEvent = _.find(rows, rowMatchesType(endEventType), i)
-    getTalkTimes.push({
+    allTalkTimes.push({
       isTeacher,
       duration: moment(endEvent.dateTime).diff(moment(startEvent.dateTime)),
     })
-
-    // console.log(`${row._id}–${endEvent._id}`)
   })
 
-  return getTalkTimes
+  const teacherTalkTimes = allTalkTimes.filter(tt => tt.isTeacher)
+  const studentTalkTimes = allTalkTimes.filter(tt => !tt.isTeacher)
+
+  const makeStats = talkTimes => {
+    return {
+      count: talkTimes.length,
+      sum: round2(millisToRoundedMinutes(sum(_.map(talkTimes, 'duration')))),
+      avg: round2(millisToRoundedMinutes(avg(_.map(talkTimes, 'duration')))),
+    }
+  }
+
+  return {
+    teacher: makeStats(allTalkTimes.filter(tt => tt.isTeacher)),
+    student: makeStats(allTalkTimes.filter(tt => !tt.isTeacher)),
+  }
 }
 
-export { getTalkTimes, getWaitTimeOnes };
+function getColdCalls(rows) {
+  return _.filter(rows, rowMatchesType(EventTypes.COLD_CALL)).length;
+}
+
+function getHandsRaised(rows) {
+  return _.filter(rows, rowMatchesType(EventTypes.HAND_RAISED)).length;
+}
+
+function getNameUseds(rows) {
+  return _.filter(rows, rowMatchesType(EventTypes.NAME_USED)).length;
+}
+
+function getSilenceStats(rows) {
+  let silences = []
+  let indexSilenceStarted = 0
+  let isTeacherTalking = false
+  let isStudentTalking = false
+
+  rows.forEach((row, i) => {
+    const noOneWasTalking = !isTeacherTalking && !isStudentTalking
+    const peopleWereTalking = isTeacherTalking || isStudentTalking
+    if (row.type == EventTypes.TEACHER_TALK_START) {
+      isTeacherTalking = true
+    }
+    if (isTeacherTalking && row.type == EventTypes.TEACHER_TALK_END) {
+      isTeacherTalking = false
+    }
+
+    if (row.type == EventTypes.STUDENT_TALK_START) {
+      isStudentTalking = true
+    }
+    if (isStudentTalking && row.type == EventTypes.STUDENT_TALK_END) {
+      isStudentTalking = false
+    }
+
+    const nowPeopleAreTalking = isTeacherTalking || isStudentTalking
+    const nowNoOneIsTalking = !isTeacherTalking && !isStudentTalking
+
+    if (noOneWasTalking && nowPeopleAreTalking) {
+      const segment = _.slice(rows, indexSilenceStarted - 1, i + 1)
+      if (segment.length > 0) {
+        silences.push(segment)
+      }
+    }
+    if (peopleWereTalking && nowNoOneIsTalking) {
+      indexSilenceStarted = i
+    }
+  })
+
+  const silenceDuration = segment => moment(_.last(segment).dateTime).diff(moment(_.first(segment).dateTime))
+
+  return {
+    count: silences.length,
+    sum: millisToRoundedMinutes(sum(silences.map(silenceDuration))),
+    avg: millisToRoundedMinutes(avg(silences.map(silenceDuration))),
+  }
+}
+
+export {
+  getTalkTimes,
+  getWaitTimeOnes,
+  getColdCalls,
+  getSilenceStats,
+  getHandsRaised,
+  getNameUseds,
+};

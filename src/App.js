@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import Papa from 'papaparse'
-import { getTalkTimes, getWaitTimeOnes } from './parsers.js'
+import * as Parsers from './parsers.js'
 import Dropzone from 'react-dropzone'
 import React, { Component } from 'react'
 import * as RC from 'recharts'
@@ -8,35 +8,60 @@ import logo from './logo.svg'
 import ResetIcon from './ResetIcon.svg'
 import './App.css'
 
-const sum = arr => arr.reduce((a, sum) => a + sum)
+const sum = arr => arr.reduce((a, num) => a + num)
 const avg = arr => sum(arr) / arr.length
 
 class TalkTime extends Component {
 
   render() {
-    const teacherTimes = _.filter(this.props.talkTimes, t => t.isTeacher)
-    const studentTimes = _.filter(this.props.talkTimes, t => !t.isTeacher)
-
     const data = [
       {
         name: "Student talk time",
-        time: Math.round(sum(_.map(studentTimes, 'duration')) / (60 * 60)),
+        time: this.props.talkTimes.student.sum,
       },
       {
         name: "Teacher talk time",
-        time: Math.round(sum(_.map(teacherTimes, 'duration')) / (60 * 60)),
+        time: this.props.talkTimes.teacher.sum,
       }
     ]
     return (
-      <RC.BarChart unit="seconds" width={600} height={300} data={data}
-            margin={{top: 5, right: 30, left: 20, bottom: 5}}>
-         <RC.XAxis dataKey="name"/>
-         <RC.YAxis label="minutes"/>
-         <RC.CartesianGrid strokeDasharray="3 3"/>
-         <RC.Tooltip/>
-         <RC.Legend />
-         <RC.Bar dataKey="time" fill="#8884d8" />
-      </RC.BarChart>
+      <div>
+        <div>
+          <strong>count (TA): </strong>
+          <span>{this.props.talkTimes.teacher.count}</span>
+        </div>
+        <div>
+          <strong>sum (TA): </strong>
+          <span>{this.props.talkTimes.teacher.sum} minutes</span>
+        </div>
+        <div>
+          <strong>average (TA): </strong>
+          <span>{this.props.talkTimes.teacher.avg * 60} seconds</span>
+        </div>
+
+        <div>
+          <strong>count (student): </strong>
+          <span>{this.props.talkTimes.student.count}</span>
+        </div>
+        <div>
+          <strong>sum (student): </strong>
+          <span>{this.props.talkTimes.student.sum} minutes</span>
+        </div>
+        <div style={{marginBottom: 20}}>
+          <strong>average (student): </strong>
+          <span>{this.props.talkTimes.student.avg * 60} seconds</span>
+        </div>
+
+        <RC.BarChart unit="seconds" width={600} height={300} data={data}
+              margin={{top: 5, right: 30, left: 20, bottom: 5}}>
+           <RC.XAxis dataKey="name"/>
+           <RC.YAxis label="minutes"/>
+           <RC.CartesianGrid strokeDasharray="3 3"/>
+           <RC.Tooltip/>
+           <RC.Legend />
+           <RC.Bar dataKey="time" fill="#8884d8" />
+        </RC.BarChart>
+      </div>
     )
   }
 
@@ -61,19 +86,48 @@ class VisMain extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      waitTimeOnes: getWaitTimeOnes(props.rows),
-      talkTimes: getTalkTimes(props.rows),
+      waitTimeOnes: Parsers.getWaitTimeOnes(props.rows),
+      talkTimes: Parsers.getTalkTimes(props.rows),
+      coldCalls: Parsers.getColdCalls(props.rows),
+      handsRaised: Parsers.getHandsRaised(props.rows),
+      nameUsed: Parsers.getNameUseds(props.rows),
+      silenceStats: Parsers.getSilenceStats(props.rows),
     }
   }
 
   render() {
-    console.log(this.state.talkTimes)
     return (
       <div className="VisMain">
         <h3>Total talk time</h3>
         <TalkTime talkTimes={this.state.talkTimes}/>
         <h3>Wait time 1</h3>
         <WaitTimeVis waitTimes={this.state.waitTimeOnes}/>
+
+        <h3>Cold calls</h3>
+        <strong>count: </strong>
+        <span>{this.state.coldCalls}</span>
+
+        <h3>Hands raised</h3>
+        <strong>count: </strong>
+        <span>{this.state.handsRaised}</span>
+
+        <h3>Name used</h3>
+        <strong>count: </strong>
+        <span>{this.state.nameUsed}</span>
+
+        <h3>Silences</h3>
+        <div>
+          <strong>count: </strong>
+          <span>{this.state.silenceStats.count}</span>
+        </div>
+        <div>
+          <strong>sum: </strong>
+          <span>{this.state.silenceStats.sum} minutes</span>
+        </div>
+        <div>
+          <strong>avg: </strong>
+          <span>{this.state.silenceStats.avg} minutes</span>
+        </div>
       </div>
     )
   }
