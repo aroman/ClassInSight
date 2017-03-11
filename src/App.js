@@ -3,9 +3,21 @@ import Dropzone from 'react-dropzone'
 import React, { Component } from 'react'
 import logo from './logo.svg'
 import ResetIcon from './ResetIcon.svg'
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
+import getMuiTheme from 'material-ui/styles/getMuiTheme';
+import AppBar from 'material-ui/AppBar'
+import FileCloudUpload from 'material-ui/svg-icons/file/cloud-upload';
 
 import VisMain from './VisMain'
 import './App.css'
+
+
+const muiTheme = getMuiTheme({
+  appBar: {
+     color: '#093263',
+   }
+
+});
 
 class App extends Component {
 
@@ -40,26 +52,28 @@ class App extends Component {
 
   render() {
     return (
-      <div className="App">
-        <div className="App-header">
-          <img src={logo} alt="ClassInsight" className="App-logo"></img>
-        </div>
-        {
-          this.state.rows.length > 0
-          ?
-          <div>
-            <img className="App-reset" alt="reset" src={ResetIcon} onClick={() => this.setState({rows: []})}/>
-            <div className="App-title">{this.state.fileName}</div>
-            <VisMain rows={this.state.rows}/>
-          </div>
+      <MuiThemeProvider muiTheme={muiTheme}>
+        <div className="App">
+          <AppBar title="Class InSight"></AppBar>
+          {
+            this.state.rows.length > 0
+            ?
+            <VisMain rows={this.state.rows} fileName={this.state.fileName}/>
             :
-            <div className="Drop-center">
-              <Dropzone onDrop={this.onDrop.bind(this)} className='Dropzone' activeClassName="Dropzone-active">
+            <div className="Main">
+              <Dropzone
+                onDrop={this.onDrop.bind(this)}
+                className='Dropzone' activeClassName="Dropzone-active">
+                  <img className="Main-Logo" src={logo} alt="ClassInsight"/>
+                  <div className="Main-text">
+                    To begin, upload a .csv file by clicking <FileCloudUpload color='#093263' style={{marginBottom:-5}}/> or dragging and dropping a file.
+                  </div>
               </Dropzone>
-            </div>
-          }
 
-      </div>
+            </div>
+            }
+        </div>
+      </MuiThemeProvider>
     );
 
   }

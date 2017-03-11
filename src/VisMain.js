@@ -2,47 +2,63 @@ import _ from 'lodash'
 import * as RC from 'recharts'
 import React, { Component } from 'react'
 import calculateStatistics from './statistics.js'
+import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card'
+import Paper from 'material-ui/Paper';
 
+class Metric extends Component {
+  render() {
+    const { title, subtitle } = this.props
+    return (
+      <Card className="Metric">
+        <CardTitle title={title} subtitle={subtitle} />
+        <CardText>
+          {this.props.children}
+        </CardText>
+      </Card>
+    )
+  }
+}
 
 class TalkTime extends Component {
 
   render() {
+    const {title, subtitle, talkTimes} = this.props
     const data = [
       {
         name: "Student talk time",
-        time: this.props.talkTimes.student.sum,
+        time: talkTimes.student.sum,
       },
       {
         name: "Teacher talk time",
-        time: this.props.talkTimes.teacher.sum,
+        time: talkTimes.teacher.sum,
       }
     ]
     return (
-      <div>
+      <Metric title={title} subtitle={subtitle} className="TalkTimeMetric">
         <div>
           <strong>count (TA): </strong>
-          <span>{this.props.talkTimes.teacher.count}</span>
+          <span>{talkTimes.teacher.count}</span>
         </div>
         <div>
           <strong>sum (TA): </strong>
-          <span>{this.props.talkTimes.teacher.sum} minutes</span>
+          <span>{talkTimes.teacher.sum} minutes</span>
         </div>
         <div>
           <strong>average (TA): </strong>
-          <span>{_.round(this.props.talkTimes.teacher.avg * 60)} seconds</span>
+          <span>{_.round(talkTimes.teacher.avg * 60)} seconds</span>
         </div>
 
         <div>
           <strong>count (student): </strong>
-          <span>{this.props.talkTimes.student.count}</span>
+          <span>{talkTimes.student.count}</span>
         </div>
         <div>
           <strong>sum (student): </strong>
-          <span>{this.props.talkTimes.student.sum} minutes</span>
+          <span>{talkTimes.student.sum} minutes</span>
         </div>
         <div style={{marginBottom: 20}}>
           <strong>average (student): </strong>
-          <span>{_.round(this.props.talkTimes.student.avg * 60)} seconds</span>
+          <span>{_.round(talkTimes.student.avg * 60)} seconds</span>
         </div>
 
         <RC.BarChart unit="seconds" width={600} height={300} data={data}
@@ -54,6 +70,68 @@ class TalkTime extends Component {
            <RC.Legend />
            <RC.Bar dataKey="time" fill="#8884d8" />
         </RC.BarChart>
+      </Metric>
+    )
+  }
+
+}
+
+
+class CountMetric extends Component {
+
+  render() {
+    const { title, subtitle, count } = this.props
+    return (
+      <div className="CountMetric">
+        <Metric title={title} subtitle={subtitle} >
+          <strong>count: </strong>
+          <span>{count}</span>
+        </Metric>
+      </div>
+    )
+  }
+
+}
+
+
+// Count, average, sum
+class CASMetric extends Component {
+
+  render() {
+    const { title, subtitle, stats } = this.props
+    return (
+      <div className="CASMetric">
+        <Metric title={title} subtitle={subtitle} className="CASMetric">
+          <div>
+            <strong>count: </strong>
+            <span>{stats.count}</span>
+          </div>
+          <div>
+            <strong>sum: </strong>
+            <span>{stats.sum} minutes</span>
+          </div>
+          <div>
+            <strong>avg: </strong>
+            <span>{stats.avg} minutes</span>
+          </div>
+        </Metric>
+      </div>
+    )
+  }
+
+}
+
+
+class JSONMetric extends Component {
+
+  render() {
+    const {title, data} = this.props
+
+    return (
+      <div className="JSONMetric">
+        <Metric title={title}>
+          <pre>{JSON.stringify(data, null, 4)}</pre>
+        </Metric>
       </div>
     )
   }
@@ -71,39 +149,18 @@ class VisMain extends Component {
   }
 
   render() {
+
     return (
-      <div className="VisMain">
-        <h3>Total talk time</h3>
-        <TalkTime talkTimes={this.state.stats.talkTimes}/>
-
-        <h3>Wait time I</h3>
-        <pre>{JSON.stringify(this.state.stats.waitTimeOne, null, 4)}</pre>
-
-        <h3>Cold calls</h3>
-        <strong>count: </strong>
-        <span>{this.state.stats.coldCallsCount}</span>
-
-        <h3>Hands raised</h3>
-        <strong>count: </strong>
-        <span>{this.state.stats.handsRaisedCount}</span>
-
-        <h3>Name used</h3>
-        <strong>count: </strong>
-        <span>{this.state.stats.nameUsedCount}</span>
-
-        <h3>Silences</h3>
-        <div>
-          <strong>count: </strong>
-          <span>{this.state.stats.silenceStats.count}</span>
-        </div>
-        <div>
-          <strong>sum: </strong>
-          <span>{this.state.stats.silenceStats.sum} minutes</span>
-        </div>
-        <div>
-          <strong>avg: </strong>
-          <span>{this.state.stats.silenceStats.avg} minutes</span>
-        </div>
+      <div className="Metrics">
+        <div className="FileName">{this.props.fileName}</div>
+        <CountMetric title="Hands raised" count={this.state.stats.handsRaisedCount}/>
+        <CountMetric title="Name used" count={this.state.stats.nameUsedCount}/>
+        <CountMetric title="Cold calls" count={this.state.stats.coldCallsCount}/>
+        <CountMetric title="Unique student talk" count={this.state.stats.uniqueStudentTalkCount}/>
+        <CountMetric title="Students present" count={this.state.stats.studentsPresentCount}/>
+        <CASMetric title="Silence" stats={this.state.stats.silenceStats}/>
+        <JSONMetric title="Wait time 1" data={this.state.stats.waitTimeOne}/>
+        <TalkTime title="Talk time 1" talkTimes={this.state.stats.talkTimes}/>
       </div>
     )
   }

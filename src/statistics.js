@@ -65,11 +65,9 @@ function waitTimeOne(rows) {
     // const rowsWhereQuestionMustOccur = _.slice(rows, i, indexOfNextTalkEnd)
     // const contentQuestion = _.find(rowsWhereQuestionMustOccur, rowTypeIs(ET.CONTENT_QUESTION))
     // const nonContentQuestion = _.find(rowsWhereQuestionMustOccur, rowTypeIs(ET.NON_CONTENT_QUESTION))
-    //
+    let contentQuestion = true
     // // Check #4: Make sure a question was actually asked!
     // if (!contentQuestion && !nonContentQuestion ) { return }
-
-    let contentQuestion = true
 
     // console.log(indexOfNextTalkStart)
     // console.log(indexOfNextTalkEnd)
@@ -205,6 +203,7 @@ const calculateStatistics = rows => {
     uniqueStudentTalkCount: countRowsOfType(ET.UNIQUE_STUDENT_TALK)(rows),
     handsRaisedCount: countRowsOfType(ET.HAND_RAISED)(rows),
     coldCallsCount: countRowsOfType(ET.COLD_CALL)(rows),
+    studentsPresentCount: countRowsOfType(ET.STUDENT_PRESENT)(rows),
     silenceStats: getSilenceStats(rows),
     talkTimes: getTalkTimes(rows),
     waitTimeOne: waitTimeOne(rows),
