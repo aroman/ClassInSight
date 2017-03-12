@@ -8,7 +8,7 @@ import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import AppBar from 'material-ui/AppBar'
 import FileCloudUpload from 'material-ui/svg-icons/file/cloud-upload';
 
-import VisMain from './VisMain'
+import VisMainStatic from './VisMain'
 import './App.css'
 
 
@@ -25,6 +25,7 @@ class App extends Component {
     super(props)
     this.state = {
       fileName: null,
+      gesf: window.location.href.indexOf("gesf") > 0,
       rows: [],
     }
   }
@@ -56,9 +57,10 @@ class App extends Component {
         <div className="App">
           <AppBar title="Class InSight"></AppBar>
           {
-            this.state.rows.length > 0
+            this.state.rows.length > 0 || this.state.gesf
             ?
-            <VisMain rows={this.state.rows} fileName={this.state.fileName}/>
+            // <VisMain rows={this.state.rows} fileName={this.state.fileName}/>
+            <VisMainStatic/>
             :
             <div className="Main">
               <Dropzone

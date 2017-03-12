@@ -121,6 +121,32 @@ class CASMetric extends Component {
 
 }
 
+class StaticSilenceMetric extends Component {
+
+  render() {
+    const { title, subtitle } = this.props
+    return (
+      <div className="StaticSilenceMetric">
+        <Metric title={title} subtitle={subtitle} className="CASMetric">
+          <div>
+            <strong>count: </strong>
+            <span>{9}</span>
+          </div>
+          <div>
+            <strong>sum: </strong>
+            <span>{90} minutes</span>
+          </div>
+          <div>
+            <strong>avg: </strong>
+            <span>{13.3} minutes</span>
+          </div>
+        </Metric>
+      </div>
+    )
+  }
+
+}
+
 
 class JSONMetric extends Component {
 
@@ -137,6 +163,7 @@ class JSONMetric extends Component {
   }
 
 }
+
 
 class VisMain extends Component {
 
@@ -167,4 +194,91 @@ class VisMain extends Component {
 
 }
 
-export default VisMain
+
+
+class VisMainStatic extends Component {
+
+  render() {
+
+    return (
+      <div className="Metrics">
+        <div className="TitleMain">{'Friday, March 11 (10:30am—11:20am)'}</div>
+        <div className="SubtitleMain">{'Calculus in 3D, Section E'}</div>
+        <Metric title="Hand raising" subtitle="Statistics about students raising their hands">
+          <div>
+            <strong>total hand raises: </strong>
+            <span>19 times</span>
+          </div>
+          <div>
+            <strong>most raised simultaneously: </strong>
+            <span>4 at once</span>
+          </div>
+          <div>
+            <strong>avg time in air: </strong>
+            <span>9.3s</span>
+          </div>
+        </Metric>
+        <CountMetric title="Name used" subtitle="When you used a student's name" count={"9 times"}/>
+        <CountMetric title="Cold calls" subtitle="Calling on students who weren't raising their hands" count={"10 times"}/>
+        <CountMetric title="Students present" subtitle="How many students attended this class period" count={"19 students"}/>
+        <Metric title="Silence" subtitle="When neither you or nor students were speaking">
+          <div>
+            <strong>count: </strong>
+            <span>54 instances</span>
+          </div>
+          <div>
+            <strong>average silence: </strong>
+            <span>7.3 seconds</span>
+          </div>
+          <div>
+            <strong>total silence: </strong>
+            <span>9.8 minutes</span>
+          </div>
+        </Metric>
+        <Metric title="Wait time" subtitle="Ideally, you should wait at least 3 seconds after posing a question before moving on">
+          <img src="waittime.svg" />
+        </Metric>
+        <Metric title="Talk time" subtitle="How long you spoke compared to how long your students spoke">
+          <img src="talktime.svg"/>
+          <div style={{marginTop: 30}}>
+            <strong>count (you): </strong>
+            <span>145 times</span>
+          </div>
+          <div>
+            <strong>sum (you): </strong>
+            <span>38 minutes</span>
+          </div>
+          <div>
+            <strong>average (you): </strong>
+            <span>14 seconds</span>
+          </div>
+
+          <div style={{marginTop: 10}}>
+            <strong>count (students): </strong>
+            <span>21 times</span>
+          </div>
+          <div>
+            <strong>sum (students): </strong>
+            <span>3 minutes</span>
+          </div>
+          <div style={{marginBottom: 20}}>
+            <strong>average (students): </strong>
+            <span>2 seconds</span>
+          </div>
+        </Metric>
+        {/* <TalkTime title="Talk time" subtitle="How long you spoke compared to how long your students spoke" talkTimes={{
+        student: {count: 21, sum: 3.03, avg: .03,},
+        teacher: {count: 179, sum: 38.87, avg: 0.23,},
+        }}/> */}
+
+      </div>
+    )
+  }
+
+}
+
+
+
+
+// export default VisMain
+export default VisMainStatic

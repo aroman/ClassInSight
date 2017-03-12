@@ -66,6 +66,16 @@ h2 {
   margin: 10px;
 }
 
+.Metric div {
+  font-size: 16px;
+  line-height: 22px;
+}
+
+.Metric strong, .Metric span {
+  font-size: 16px;
+  line-height: 22px;
+}
+
 .JSONMetric pre {
   font-size: 12px;
   padding-right: 50px;
@@ -80,3 +90,27 @@ h2 {
   width: 100%;
   margin-bottom: 20px;
 }
+
+.TitleMain {
+  display: block;
+  font-size: 30px;
+  width: 100%;
+  font-weight: 300;
+  margin-bottom: 20px;
+}
+
+.SubtitleMain {
+  display: block;
+  font-size: 24px;
+  color: #666;
+  width: 100%;
+  margin-bottom: 20px;
+}
+/*
+.recharts-bar-rectangles g > path:first-of-type {
+  fill: rgb(255,0,0);
+}
+
+.recharts-bar-rectangles g > path:last-of-type {
+  fill: rgb(0,255,0);
+}*/
