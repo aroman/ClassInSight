@@ -2,8 +2,8 @@ import _ from 'lodash'
 import * as RC from 'recharts'
 import React, { Component } from 'react'
 import calculateStatistics from './statistics.js'
-import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card'
-import Paper from 'material-ui/Paper';
+import {Card, CardTitle, CardText} from 'material-ui/Card'
+import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table'
 
 class Metric extends Component {
   render() {
@@ -76,7 +76,6 @@ class TalkTime extends Component {
 
 }
 
-
 class CountMetric extends Component {
 
   render() {
@@ -92,7 +91,6 @@ class CountMetric extends Component {
   }
 
 }
-
 
 // Count, average, sum
 class CASMetric extends Component {
@@ -121,42 +119,41 @@ class CASMetric extends Component {
 
 }
 
-class StaticSilenceMetric extends Component {
+class WaitTimeMetric extends Component {
 
   render() {
-    const { title, subtitle } = this.props
-    return (
-      <div className="StaticSilenceMetric">
-        <Metric title={title} subtitle={subtitle} className="CASMetric">
-          <div>
-            <strong>count: </strong>
-            <span>{9}</span>
-          </div>
-          <div>
-            <strong>sum: </strong>
-            <span>{90} minutes</span>
-          </div>
-          <div>
-            <strong>avg: </strong>
-            <span>{13.3} minutes</span>
-          </div>
-        </Metric>
-      </div>
-    )
-  }
-
-}
-
-
-class JSONMetric extends Component {
-
-  render() {
-    const {title, data} = this.props
+    const {title, waitTimes} = this.props
 
     return (
-      <div className="JSONMetric">
+      <div className="WaitTimeMetric">
         <Metric title={title}>
-          <pre>{JSON.stringify(data, null, 4)}</pre>
+          <Table selectable={false}>
+           <TableHeader displaySelectAll={false} enableSelectAll={false} adjustForCheckbox={false}>
+             <TableRow>
+               <TableHeaderColumn>Time</TableHeaderColumn>
+               <TableHeaderColumn>Time (raw)</TableHeaderColumn>
+               <TableHeaderColumn>Duration</TableHeaderColumn>
+               <TableHeaderColumn>Type</TableHeaderColumn>
+               <TableHeaderColumn>Followed by</TableHeaderColumn>
+             </TableRow>
+           </TableHeader>
+           <TableBody displayRowCheckbox={false}>
+             {
+               waitTimes.map(waitTime => {
+                 return (
+                   <TableRow key={waitTime.timestamp.valueOf()}>
+                     <TableRowColumn>{waitTime.timestamp.format("M/D/YYYY @ h:mm:ss a")}</TableRowColumn>
+                     <TableRowColumn>{waitTime.timestamp.valueOf()}</TableRowColumn>
+                     <TableRowColumn>{(waitTime.duration / 1000).toFixed(2)} sec</TableRowColumn>
+                     <TableRowColumn>{waitTime.type}</TableRowColumn>
+                     <TableRowColumn>{waitTime.followedBy}</TableRowColumn>
+                   </TableRow>
+                 )
+               })
+             }
+
+           </TableBody>
+         </Table>
         </Metric>
       </div>
     )
@@ -180,13 +177,13 @@ class VisMain extends Component {
     return (
       <div className="Metrics">
         <div className="FileName">{this.props.fileName}</div>
+        <WaitTimeMetric title="Wait time 1" waitTimes={this.state.stats.waitTimeOne}/>
         <CountMetric title="Hands raised" count={this.state.stats.handsRaisedCount}/>
         <CountMetric title="Name used" count={this.state.stats.nameUsedCount}/>
         <CountMetric title="Cold calls" count={this.state.stats.coldCallsCount}/>
         <CountMetric title="Unique student talk" count={this.state.stats.uniqueStudentTalkCount}/>
         <CountMetric title="Students present" count={this.state.stats.studentsPresentCount}/>
-        <CASMetric title="Silence" stats={this.state.stats.silenceStats}/>
-        <JSONMetric title="Wait time 1" data={this.state.stats.waitTimeOne}/>
+        {/* <CASMetric title="Silence" stats={this.state.stats.silenceStats}/> */}
         <TalkTime title="Talk time 1" talkTimes={this.state.stats.talkTimes}/>
       </div>
     )

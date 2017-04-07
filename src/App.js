@@ -4,9 +4,9 @@ import React, { Component } from 'react'
 import logo from './logo.svg'
 import ResetIcon from './ResetIcon.svg'
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
-import getMuiTheme from 'material-ui/styles/getMuiTheme';
+import getMuiTheme from 'material-ui/styles/getMuiTheme'
 import AppBar from 'material-ui/AppBar'
-import FileCloudUpload from 'material-ui/svg-icons/file/cloud-upload';
+import FileCloudUpload from 'material-ui/svg-icons/file/cloud-upload'
 
 import VisMainStatic from './VisMain'
 import './App.css'
@@ -16,8 +16,7 @@ const muiTheme = getMuiTheme({
   appBar: {
      color: '#093263',
    }
-
-});
+})
 
 class App extends Component {
 
@@ -76,10 +75,10 @@ class App extends Component {
             }
         </div>
       </MuiThemeProvider>
-    );
+    )
 
   }
 
 }
 
-export default App;
+export default App

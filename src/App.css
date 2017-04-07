@@ -37,10 +37,8 @@ h2 {
   width: 100%;
   height: calc(100% - 60px - 4px);
   display: flex;
-  /*justify-content: center;*/
   flex-direction: column;
   align-items: center;
-  /*transition: all 1s;*/
   box-sizing: border-box;
   border-width: 5px;
   border-color: white;

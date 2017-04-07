@@ -3,9 +3,6 @@ import moment from 'moment'
 import ET from './EventTypes.js'
 import F from 'lodash/fp'
 
-// const millisToMinutes = num => num / 60 * 1000
-// const millisToRoundedMinutes = F.compose(F.round(2), millisToMinutes)
-// const millisToRoundedMinutes = num => _.round(millisToMinutes(num), 2)
 const millisToRoundedMinutes = num => _.round(num / (60 * 1000), 2)
 
 const rowTypeIs = eventType => F.compose(F.isEqual(eventType), F.get('type'))
@@ -28,18 +25,10 @@ const isSilentBetween = F.every(row => !doesEventTypeBreakSilence(row.type))
 // about.
 function waitTimeOne(rows) {
 
-  let waitTimes = {
-    a: {
-      content: [],
-      nonContent: [],
-    },
-    b: {
-      content: [],
-      nonContent: [],
-    },
-  }
+  let waitTimes = []
 
   rows.forEach((row, i) => {
+
     // Check #1: Make sure teacher started talking
     const teacherStartTalking = (row.type === ET.TEACHER_TALK_START)
     const indexOfTeacherStopTalking = _.findIndex(rows, rowTypeIs(ET.TEACHER_TALK_END), i)
@@ -50,9 +39,6 @@ function waitTimeOne(rows) {
     const indexOfNextTalkStart = _.findIndex(rows, r => (r.type === ET.TEACHER_TALK_START) || (r.type === ET.STUDENT_TALK_START), indexOfTeacherStopTalking)
     if (indexOfNextTalkStart === -1) return
 
-    // Wait time 1a
-    const is1a = (rows[indexOfNextTalkStart].type === ET.TEACHER_TALK_START)
-
     const rowsBetweenTeacherStopAndNextTalkStart = _.slice(rows, indexOfTeacherStopTalking, indexOfNextTalkStart)
 
     // Check #3: Make sure there's silence between when teacher stops
@@ -60,21 +46,21 @@ function waitTimeOne(rows) {
     if (! isSilentBetween(rowsBetweenTeacherStopAndNextTalkStart)) { return }
 
 
-    // // Find the question event between the start of the teacher
-    // // talking and when they start talking again (if one exists).
-    // const rowsWhereQuestionMustOccur = _.slice(rows, i, indexOfNextTalkEnd)
-    // const contentQuestion = _.find(rowsWhereQuestionMustOccur, rowTypeIs(ET.CONTENT_QUESTION))
-    // const nonContentQuestion = _.find(rowsWhereQuestionMustOccur, rowTypeIs(ET.NON_CONTENT_QUESTION))
-    let contentQuestion = true
-    // // Check #4: Make sure a question was actually asked!
-    // if (!contentQuestion && !nonContentQuestion ) { return }
+    // Find the question event between the start of the teacher
+    // talking and when they start talking again (if one exists).
+    const rowsWhereQuestionMustOccur = _.slice(rows, i, indexOfNextTalkStart)
+    const contentQuestion = _.find(rowsWhereQuestionMustOccur, rowTypeIs(ET.CONTENT_QUESTION))
+    const nonContentQuestion = _.find(rowsWhereQuestionMustOccur, rowTypeIs(ET.NON_CONTENT_QUESTION))
+      // let contentQuestion = true
+    // Check #4: Make sure a question was actually asked!
+    if (!contentQuestion && !nonContentQuestion ) { return }
 
-    // console.log(indexOfNextTalkStart)
-    // console.log(indexOfNextTalkEnd)
-    //
-    waitTimes[is1a ? 'a' : 'b'][contentQuestion ? 'content' : 'nonContent'].push(
-      rows[indexOfNextTalkStart].moment.diff(rows[indexOfTeacherStopTalking].moment)
-    )
+    waitTimes.push({
+      followedBy: (rows[indexOfNextTalkStart].type === ET.TEACHER_TALK_START) ? 'TA' : 'Student',
+      type: contentQuestion ? 'content' : 'non-content',
+      duration: rows[indexOfNextTalkStart].moment.diff(rows[indexOfTeacherStopTalking].moment),
+      timestamp: rows[indexOfTeacherStopTalking].moment,
+    })
   })
 
   return waitTimes
@@ -114,7 +100,6 @@ function getTalkTimes(rows) {
   }
 }
 
-
 function markSilence(rows) {
   let isTeacherTalking = false
   let isStudentTalking = false
@@ -132,6 +117,8 @@ function markSilence(rows) {
   })
 }
 
+// XXX: This doesn't work properly -- it over-counts silence.
+// It's probably worth re-writing this from scratch.
 function getSilenceStats(rows) {
   let silentSegments = []
   let indexSilenceStarted = 0
@@ -209,6 +196,5 @@ const calculateStatistics = rows => {
     waitTimeOne: waitTimeOne(rows),
   }
 }
-
 
 export default calculateStatistics
